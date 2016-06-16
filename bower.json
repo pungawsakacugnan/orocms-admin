@@ -1,0 +1,32 @@
+{
+    "name": "orocms",
+    "version": "1.0.0",
+    "authors": [
+        "Dhens <rudenyl@gmail.com>"
+    ],
+    "description": "OroCMS bower components",
+    "license": "MIT",
+    "dependencies": {
+        "jquery": "*",
+        "fontawesome": "*",
+        "bootstrap": "*",
+        "bootbox": "*",
+        "bootstrap-table": "git://github.com/rudenyl/bootstrap-table#dev-master",
+        "bootstrap-group-select": "git://github.com/rudenyl/bootstrap-group-select#1.0.2",
+        "bootstrap-select": "*",
+        "history.js": "*",
+        "nprogress": "*",
+        "select2": "*",
+        "select2-bootstrap-css": "*",
+        "moment": "*",
+        "moment-timezone": "*",
+        "eonasdan-bootstrap-datetimepicker": "*"
+    },
+    "ignore": [
+        "**/.*",
+        "node_modules",
+        "bower_components",
+        "test",
+        "tests"
+    ]
+}

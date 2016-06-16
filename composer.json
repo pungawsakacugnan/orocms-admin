@@ -1,0 +1,38 @@
+{
+    "name": "rudenyl/orocms-admin",
+    "description": "Simple addministration package for OroCMS and L5",
+    "authors": [
+        {
+            "name": "Dhens",
+            "email": "rudenyl@gmail.com"
+        }
+    ],
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/rudenyl/menus.git"
+        }
+    ],
+    "require": {
+        "php": ">=5.5.9",
+        "laravel/framework": "5.2.*",
+        "caffeinated/menus": "dev-master",
+        "league/fractal": ">=0.12.0",
+        "hashids/hashids": "1.0.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "~4",
+        "mockery/mockery": "~0.9"
+    },
+    "autoload": {
+        "classmap": [
+        ],
+        "psr-4": {
+            "OroCMS\\Admin\\": "src/OroCMS/Admin",
+            "Modules\\": "modules/",
+            "Plugins\\": "plugins/"
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}
