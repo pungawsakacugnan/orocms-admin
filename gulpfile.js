@@ -27,6 +27,7 @@ elixir(function(mix) {
             paths.bower_path + 'history.js/scripts/bundled/html4+html5/jquery.history.js',
             paths.bower_path + 'bootstrap/dist/js/bootstrap.min.js',
             paths.bower_path + 'bootstrap-table/dist/bootstrap-table.min.js',
+            paths.bower_path + 'bootstrap-table/dist/extensions/cookie/bootstrap-table-cookie.min.js',
             paths.bower_path + 'bootstrap-table/dist/extensions/mobile/bootstrap-table-mobile.min.js',
             paths.bower_path + 'bootbox/bootbox.js',
             paths.bower_path + 'nprogress/nprogress.js',
