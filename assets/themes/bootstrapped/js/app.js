@@ -40,7 +40,7 @@ var App, // app helper
             init($(el), target);
         });
     };
-     
+
     /**
      * Main app helper
      */
@@ -67,11 +67,11 @@ var App, // app helper
         cookie: function(name) {
             var today = new Date(),
                 expire = new Date(),
-                value = arguments[1] || false,
+                value = arguments[1],
                 days = arguments[2] || false;
 
             // getter
-            if (value === false) {
+            if (value === undefined) {
                 var context = name + "=",
                     cookies = document.cookie.split(';');
 
@@ -85,6 +85,7 @@ var App, // app helper
             }
 
             if (days == null || days == 0) days = 1;
+            if (value === null) value = '';
 
             expire.setTime(today.getTime() + 36e5*24*days );
             document.cookie = name+"="+escape(value) + ";expires="+expire.toGMTString();
@@ -310,31 +311,7 @@ var App, // app helper
                 // custom query params
                 queryParamsType: '',
                 queryParams: function(params) {
-                    if (params.pageSize != undefined) {
-                        $.extend(params, {
-                            limit: params.pageSize,
-                            page: params.pageNumber,
-                            sort: params.sortName,
-                            order: params.sortOrder,
-                            search: params.searchText
-                        });
-
-                        // unset
-                        if (params.pageSize != undefined) delete params.pageSize;
-                        if (params.pageNumber != undefined) delete params.pageNumber;
-                        if (params.sortName != undefined) delete params.sortName;
-                        if (params.sortOrder != undefined) delete params.sortOrder;
-                        if (params.searchText != undefined) delete params.searchText;
-                    }
-
-                    // add data-bt-role doms
-                    var custom_params = $.extend(params, {});
-                    $('[data-bt-role*="filters"]').each(function() {
-                        var data = $(this).data('filters') || {};
-                        $.extend(custom_params, data);
-                    });
-
-                    return params;
+                    return BT.getParams(params, true);
                 },
 
                 // cardview builder
@@ -383,29 +360,7 @@ var App, // app helper
          * Helpers
          */
         queryParams: function(params) {
-            $.extend(params, {
-                limit: params.pageSize,
-                page: params.pageNumber,
-                sort: params.sortName,
-                order: params.sortOrder,
-                search: params.searchText
-            });
-
-            // unset
-            if (params.pageSize != undefined) delete params.pageSize;
-            if (params.pageNumber != undefined) delete params.pageNumber;
-            if (params.sortName != undefined) delete params.sortName;
-            if (params.sortOrder != undefined) delete params.sortOrder;
-            if (params.searchText != undefined) delete params.searchText;
-
-            // add data-bt-role doms
-            var custom_params = $.extend(params, {});
-            $('[data-bt-role*="filters"]').each(function() {
-                var data = $(this).data('filters') || {};
-                $.extend(custom_params, data);
-            });
-
-            return params;
+            return BT.getParams(params);
         },
 
         /*
@@ -436,17 +391,30 @@ var App, // app helper
             }
 
             var _table = $(target);
+            this.target = _table;
+
             // sanity check
             try {
-                var options = self.options || {};
-                var _bootstrap_table = _table.bootstrapTable(options.defaults || {});
+                var this_opt = self.options || {},
+                    options = this_opt.defaults || {};
+
+                // allow cookies
+                if (options.cookie == undefined) {
+                    var cookieTableId = this.target[0].id || '';
+
+                    $.extend(options, {
+                        cookie: true,
+                        cookieIdTable: ['orocms-bt', cookieTableId].join('.')
+                    })
+                }
+
+                var _bootstrap_table = _table.bootstrapTable(options);
             }
             catch(err) {
                 return console.log('Either Bootstrap table not found or this error -->', err);
             }
 
-            // add to self
-            this.target = _table;
+            // we're good
             this.initialized = true;
 
             //
@@ -510,16 +478,19 @@ var App, // app helper
                 // set data
                 $('[role*="bt-action"]').data('params-id', BT.selections);
             })
+
             // set active data field/row on clickable row
             .on('click-cell.bs.table a', function(t,f,i, row) {
                 self.__active_field = f;
                 self.__active_field_data = row;
                 return false;
             })
-            
+
             // additional listeners
             .on('post-body.bs.table loaded.bs.table', function(e) {
                 if (e.type == 'loaded') {
+                    BT.initBootstrapSearch();
+
                     // set display header on column field toggle dropdown
                     if (!$(this).data('__bt-col-header-init')) {
                         $('<li class="dropdown-header">Toggle Columns</li>').prependTo($('[title="Columns"] .dropdown-menu'));
@@ -540,27 +511,9 @@ var App, // app helper
 
             // add clear button for toolbar search
             .on('search.bs.table', function(t, query) {
-                var input = $(t.target).closest('.bootstrap-table').find('.fixed-table-toolbar .search input[type="text"]');
-                if (input.length && query != '') {
-                    var p = input.parent();
-                    if (p.find('.query-clear').length < 1) {
-                        $('<a />')
-                            .html('<i class="fa fa-ban"></i>')
-                            .addClass('query-clear')
-                            .off('click').on('click', function(e) {
-                                e.preventDefault();
-                                $(this).parent().find('input')
-                                    .val('')
-                                    .trigger('keyup');
-
-                                $(this).fadeOut('fast', function() {
-                                    $(this).remove();
-                                });
-                            })
-                            .appendTo(p);
-                    }
-                }
+                BT.initBootstrapSearch();
             })
+
             // click sink
             .off('click', 'a[data-toggle="popover"]')
             .on('click', 'a[data-toggle="popover"]', function(e) {
@@ -690,6 +643,42 @@ var App, // app helper
         /**
          * Helpers
          */
+        // get params
+        getParams: function() {
+            var params = arguments[0] || {},
+                checkPageSize = arguments[1] || false,
+                canExtend = true;
+
+            if (checkPageSize && params.pageSize == undefined) {
+                canExtend = false;
+            }
+
+            if (canExtend) {
+                $.extend(params, {
+                    limit: params.pageSize,
+                    page: params.pageNumber,
+                    sort: params.sortName,
+                    order: params.sortOrder,
+                    search: params.searchText
+                });
+
+                // unset
+                if (params.pageSize != undefined) delete params.pageSize;
+                if (params.pageNumber != undefined) delete params.pageNumber;
+                if (params.sortName != undefined) delete params.sortName;
+                if (params.sortOrder != undefined) delete params.sortOrder;
+                if (params.searchText != undefined) delete params.searchText;
+            }
+
+            // add data-bt-role doms
+            var custom_params = $.extend(params, {});
+            $('[data-bt-role*="filters"]').each(function() {
+                var data = $(this).data('filters') || {};
+                $.extend(custom_params, data);
+            });
+
+            return params;
+        },
         // notifiers :)
         notify: function() {
             var auto_close = arguments[4] || false,
@@ -712,6 +701,36 @@ var App, // app helper
                     $(this).remove();
                 })
             },5e3, alert_id);
+        },
+        initBootstrapSearch: function() {
+            var target = this.target;
+            if (!target) return;
+
+            var input = $(target).closest('.bootstrap-table').find('.fixed-table-toolbar .search input[type="text"]'),
+                query = input.val();
+                
+            if (input.length && query != '') {
+                var p = input.parent();
+                if (p.find('.query-clear').length < 1) {
+                    $('<a />')
+                        .data('id', this.id)
+                        .html('<i class="fa fa-ban"></i>')
+                        .addClass('query-clear')
+                        .off('click').on('click', function(e) {
+                            e.preventDefault();
+
+                            $(this).parent().find('input')
+                                .val('')
+                                .trigger('keyup');
+
+                            $(this).fadeOut('fast', function() {
+                                $(this).remove();
+                            });
+                        })
+                        .appendTo(p);
+                }
+            }
+
         },
         // options getter/setter
         option: function(key) {
@@ -857,9 +876,9 @@ var App, // app helper
                 // Get stored value in cookie
                 //
                 if (this.options.allowCookie != undefined) {
-                    var id = this.options.id || this.$el[0].id;
+                    var id = [this.$el[0].id || this.$el.index(), this.options.id].join('-');
 
-                    if ((this.options.allowCookie == '1' || this.options.allowCookie == 'true') 
+                    if ((this.options.allowCookie == '1' || this.options.allowCookie == 'true')
                         && typeof App.cookie == 'function') {
                         var value = App.cookie('_gs-' + id);
 
@@ -875,11 +894,11 @@ var App, // app helper
                             if (typeof filter == 'object') this.$el.data('filters', filter);
                         }
                     } // allowCookie
-                }                
+                }
 
                 if (this.options.type !== 'dropdown') {
                     this.initButtonList(items.data);
-                } 
+                }
                 else {
                     this.initDropdownList(items.data);
                 }
@@ -911,10 +930,10 @@ var App, // app helper
                 _GS_oldTrigger.apply(this, Array.prototype.slice.apply(arguments));
 
                 if (this.options.allowCookie != undefined) {
-                    var id = this.options.id || this.$el[0].id;
-                    if ((this.options.allowCookie == '1' || this.options.allowCookie == 'true') 
+                    var id = [this.$el[0].id || this.$el.index(), this.options.id].join('-');
+                    if ((this.options.allowCookie == '1' || this.options.allowCookie == 'true')
                         && typeof App.cookie == 'function') App.cookie('_gs-' + id, this.options.value);
-                }                
+                }
             };
         }
         catch(e) {}
@@ -989,7 +1008,7 @@ var App, // app helper
             var el = $(this),
                 form = el.closest('form'),
                 target = $(el.data('target') || ''), // target
-                next = el.data('next') || ''; 
+                next = el.data('next') || '';
 
             if (target.length) form = target;
             if (next) {
