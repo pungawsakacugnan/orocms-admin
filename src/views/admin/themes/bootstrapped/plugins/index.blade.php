@@ -37,8 +37,8 @@
 
                     <div role="plugin" data-plugin="{{ $plugin->getName() }}" class="margin-10x-top">
                         <div class="switch">
-                            <input name="remember" id="remember" role="publish" @if($plugin->enabled){{ 'checked' }}@endif value="1" type="checkbox" />
-                            <label for="remember"></label>
+                            <input name="remember" id="remember-{{ $plugin->getName() }}" role="publish" @if($plugin->enabled){{ 'checked' }}@endif value="1" type="checkbox" />
+                            <label for="remember-{{ $plugin->getName() }}"></label>
                             <i class="active">Enabled</i>
                         </div>
                     </div>
