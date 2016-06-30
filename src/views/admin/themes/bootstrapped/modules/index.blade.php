@@ -31,14 +31,9 @@
                     @endif
                     <p role="module" data-module="{{ $module->getName() }}">
                         <div class="switch">
-                            <input name="remember" id="remember" disabled role="publish" @if(!$module->isStatus(0)){{ 'checked' }}@endif value="1" type="checkbox" />
-                            <label for="remember"></label>
-                            <i class="active">
-                                Enabled &nbsp;|&nbsp;
-                                @if($module->activateMenu())
-                                <a href="modules/{{ $module->getName() }}" target="_blank">View Module</a>
-                                @endif
-                            </i>
+                            <input name="remember" id="remember-{{ $module->getName() }}" disabled role="publish" @if(!$module->isStatus(0)){{ 'checked' }}@endif value="1" type="checkbox" />
+                            <label for="remember-{{ $module->getName() }}"></label>
+                            <i class="active"> Enabled</i>
                         </div>
                     </p>
                 </div>
