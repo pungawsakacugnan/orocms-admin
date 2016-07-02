@@ -612,10 +612,10 @@ input[type=radio] {
     width: 16px;
     min-width: 16px;
     -webkit-appearance: none;
-    -webkit-box-shadow: inset 0 1px 2px rgba(0,0,0,.1);
     box-shadow: inset 0 1px 2px rgba(0,0,0,.1);
-    -webkit-transition: .05s border-color ease-in-out;
+        -webkit-box-shadow: inset 0 1px 2px rgba(0,0,0,.1);
     transition: .05s border-color ease-in-out;
+        -webkit-transition: .05s border-color ease-in-out;
 }
 
 input[type=checkbox]:checked:before, 
@@ -674,7 +674,7 @@ a {
 }
 form {
     label {
-        color: #a9a9a9;
+        color: #888;
     }
 
     // default form
@@ -1010,6 +1010,16 @@ form {
     }
 }
 
+.input-group {
+    .btn {
+        height: $form_control_height;
+
+        i.glyphicon {
+            top: 5px;
+        }
+    }    
+}
+
 .modal {
     .modal-footer {
         border-top: 0;
@@ -1030,6 +1040,7 @@ form {
     }
 
     .popover-content {
+        font-family: 'Roboto', Helvetica, Arial, serif;
         font-weight: $font-weight-default;
     }
 }
@@ -1037,6 +1048,10 @@ form {
 .form-group {
     &:last-child {
         margin-bottom: 5px;
+    }
+
+    &>label {
+        font-weight: 400;
     }
 }
 
@@ -1090,6 +1105,10 @@ form {
     border-radius: 3px;
     transition: color 0.3s ease, background-color 0.3s ease, border-color 0.3s ease, width 0.3s ease, opacity 0.3s ease;
         -webkit-transition: color 0.3s ease, background-color 0.3s ease, border-color 0.3s ease, width 0.3s ease, opacity 0.3s ease;
+
+    &-large {
+        padding: 8px 16px;
+    }
 
     &.toggle {
         background-color: #fff;
@@ -1157,6 +1176,29 @@ form {
     }
 }
 
+.note {
+    position: relative;
+    background: #fef9c7;
+    color: #8d7825;
+    font-weight: normal;
+    padding: 30px 30px 30px 60px;
+    font-size: 16px;
+    line-height: 1.7;
+
+    &:after {
+        content: "Note";
+        display: block;
+        position: absolute;
+        top: 0;
+        left: 0;
+        padding: 2px 6px;
+        text-transform: uppercase;
+        font-weight: bold;
+        background: #f9ec6e;
+        font-size: 12px;
+    }
+}
+
 /**
  * Switches
  */
@@ -1179,6 +1221,7 @@ form {
             position: relative;
             cursor: pointer;
             outline: none;
+            text-indent: -9999px;
             -webkit-user-select: none;
             -moz-user-select: none;
             -ms-user-select: none;
@@ -1800,7 +1843,8 @@ form {
         margin-left: -$nav_width;
         border: none;
         border-radius: 0;
-        overflow-y: auto;
+        /**/
+        //overflow-y: auto;
         background-color: $global_bkcolor_sb;
         bottom: 0;
         overflow-x: hidden;
@@ -1851,7 +1895,8 @@ form {
         left: $nav_width_small;
         width: $nav_width_small;
         margin-left: -$nav_width_small;
-        overflow-x: initial;
+        //overflow-x: initial;
+        overflow-x: visible;
         overflow-y: initial;
 
         &>li {
@@ -1864,6 +1909,8 @@ form {
                 left: $nav_width_small;
                 list-style: none;
                 background-color: $global_bkcolor_sb;
+                /**/
+                z-index: 9999;
 
                 li {
                     > a {
