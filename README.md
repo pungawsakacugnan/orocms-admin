@@ -97,6 +97,13 @@ Point your browser to ```http://localhost:8000/admin```
 All set!
 
 
+## Troubleshooting
+```
+[BadMethodCallException]         
+  Call to undefined method insert
+```  
+When you get the above errors, it could be that the module fork for ```caffeinated/menus``` in your vendor folder wasn't properly fetched (could be a bad composer repository reference). As a temporary workaround, remove the current /caffeinated/menus folder and drop in and ```git clone https://github.com/rudenyl/menus``` instead.
+
 ### License
 
 This package is open-sourced software licensed under [The BSD 3-Clause License](http://opensource.org/licenses/BSD-3-Clause)
