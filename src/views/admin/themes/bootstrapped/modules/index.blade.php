@@ -7,7 +7,7 @@
             <a href="{{ route('admin.dashboard') }}"><i class="fa fa-dashboard"></i> {{ trans('admin.dashboard.header') }}</a>
         </li>
         <li class="active">
-            {{ trans('admin.plugin.breadcrumb') }}
+            {{ trans('admin.module.breadcrumb') }}
         </li>
     </ol>
 @stop
