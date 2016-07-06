@@ -27,7 +27,7 @@ class Theme extends ServiceProvider
      *
      * @var string
      */
-    protected $layout;
+    protected $path;
 
     /**
      * The constructor.
@@ -36,11 +36,11 @@ class Theme extends ServiceProvider
      * @param $name
      * @param $path
      */
-    public function __construct(Application $app, $name, $layout)
+    public function __construct(Application $app, $name, $path)
     {
         $this->app = $app;
         $this->name = $name;
-        $this->layout = $layout;
+        $this->path = $path;
     }
 
     /**
@@ -105,16 +105,6 @@ class Theme extends ServiceProvider
     }
 
     /**
-     * Get layout name.
-     *
-     * @return string
-     */
-    public function getLayout()
-    {
-        return $this->layout;
-    }
-
-    /**
      * Bootstrap the application events.
      */
     public function boot()
@@ -143,6 +133,16 @@ class Theme extends ServiceProvider
     public function get($key, $default = null)
     {
         return $this->json()->get($key, $default);
+    }
+
+    /**
+     * Get path.
+     *
+     * @return string
+     */
+    public function getPath()
+    {
+        return $this->path;
     }
 
     /**

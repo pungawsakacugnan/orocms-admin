@@ -117,13 +117,9 @@ class ThemeRepository implements Countable
 
             foreach ($manifests as $manifest) {
                 $name = Json::make($manifest)->get('name');
+                $base_path = dirname(realpath($manifest));
 
-                $base_path = basename($manifest);
-                $manifest = str_replace('\\', '/', dirname($manifest));
-                $arr = explode('/', $manifest);
-                $layout_path = implode('.', array_slice($arr, -2));
-
-                $themes[$name] = new Theme($this->app, strtolower($name), $layout_path);
+                $themes[$name] = new Theme($this->app, strtolower($name), $base_path);
             }
         }
 
@@ -145,38 +141,6 @@ class ThemeRepository implements Countable
         }
 
         return $themes;
-    }
-
-    /**
-     * Format the cached data as array of themes.
-     *
-     * @param array $cached
-     *
-     * @return array
-     */
-    protected function formatCached($cached)
-    {
-        $themes = [];
-
-        foreach ($cached as $name => $theme) {
-            $path = $this->config('paths.themes').'/'.$name;
-
-            $themes[] = new Theme($this->app, $name, $path);
-        }
-
-        return $themes;
-    }
-
-    /**
-     * Get cached themes.
-     *
-     * @return array
-     */
-    public function getCached()
-    {
-        return $this->app['cache']->remember($this->config('cache.key'), $this->config('cache.lifetime'), function () {
-            return $this->toCollection()->toArray();
-        });
     }
 
     /**
@@ -371,10 +335,13 @@ class ThemeRepository implements Countable
     public function getThemePath($theme)
     {
         try {
-            return $this->findOrFail($theme)->getPath().'/';
+            $theme = $this->findOrFail($theme);
+            if ($path = $theme->getPath()) {
+                return $path . '/';
+            }
         }
         catch (ThemeNotFoundException $e) {
-            return $this->getPath().'/'.Str::studly($theme).'/';
+            return $this->getPath() .'/'. Str::studly($theme) . '/';
         }
     }
 
@@ -400,64 +367,6 @@ class ThemeRepository implements Countable
     public function config($key)
     {
         return $this->app['config']->get('themes.'.$key);
-    }
-
-    /**
-     * Get storage path for theme used.
-     *
-     * @return string
-     */
-    public function getUsedStoragePath()
-    {
-        if (!$this->app['files']->exists($path = storage_path('app/themes'))) {
-            $this->app['files']->makeDirectory($path, 0777, true);
-        }
-
-        return $path.'/themes.used';
-    }
-
-    /**
-     * Set theme used for cli session.
-     *
-     * @param $name
-     *
-     * @throws ThemeNotFoundException
-     */
-    public function setUsed($name)
-    {
-        $theme = $this->findOrFail($name);
-
-        $this->app['files']->put($this->getUsedStoragePath(), $theme);
-    }
-
-    /**
-     * Get theme used for cli session.
-     *
-     * @return string
-     */
-    public function getUsedNow()
-    {
-        return $this->findOrFail($this->app['files']->get($this->getUsedStoragePath()));
-    }
-
-    /**
-     * Get used now.
-     *
-     * @return string
-     */
-    public function getUsed()
-    {
-        return $this->getUsedNow();
-    }
-
-    /**
-     * Get laravel filesystem instance.
-     *
-     * @return \Illuminate\Filesystem\Filesystem
-     */
-    public function getFiles()
-    {
-        return $this->app['files'];
     }
 
     /**
@@ -487,30 +396,6 @@ class ThemeRepository implements Countable
         $url = $this->app['url']->asset($baseUrl."/{$name}/".$url);
 
         return str_replace(['http://', 'https://'], '//', $url);
-    }
-
-    /**
-     * Determine whether the given theme is activated.
-     *
-     * @param string $name
-     *
-     * @return bool
-     */
-    public function active($name)
-    {
-        return $this->findOrFail($name)->active();
-    }
-
-    /**
-     * Determine whether the given theme is not activated.
-     *
-     * @param string $name
-     *
-     * @return bool
-     */
-    public function notActive($name)
-    {
-        return !$this->active($name);
     }
 
     /**
