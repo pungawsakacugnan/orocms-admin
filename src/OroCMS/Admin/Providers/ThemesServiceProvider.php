@@ -42,16 +42,10 @@ class ThemesServiceProvider extends ServiceProvider
         });
 
         /**
-         * Add blade directives/extensions
-         */
-
-        /**
-         * @directive: define
-         * @usage: @define x = 1 // assigns 1 to x
-         * http://stackoverflow.com/questions/13002626/laravels-blade-how-can-i-set-variables-in-a-template
+         * Extend/add blade directives
          */
         Blade::extend(function($value) {
-            return preg_replace('/\@define(.+)/', '<?php ${1}; ?>', $value);
+            return preg_replace('|@define(.+);|sU', '<?php ${1}; ?>', $value);
         });
     }
 
