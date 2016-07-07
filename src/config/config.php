@@ -30,6 +30,7 @@ return [
         'path' => base_path('plugins')
     ],
     'themes' => [
+        'path' => base_path('resources/views/themes'),
         'default_theme' => 'default',
         'cp' => [
             'default_theme' => 'bootstrapped'
