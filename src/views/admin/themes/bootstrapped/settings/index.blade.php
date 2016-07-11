@@ -45,8 +45,8 @@
                 <!-- General Settings //-->
                 <div role="tabpanel" class="tab-pane active" id="general">
                     {!! Form::open([
-                        'class' => 'form-default', 
-                        'method' => 'PUT', 
+                        'class' => 'form-default',
+                        'method' => 'PUT',
                         'route' => 'admin.settings.update'
                     ]) !!}
                         <div class="section">
@@ -125,8 +125,7 @@
                         </div>
                         @else
                         <div class="alert flash-message alert-warning alert-dismissable">
-                            <button type="button" class="close" data-dismiss="alert" aria-hidden="true"><i class="fa fa-ban"></i></button>
-                            No plugin installed.
+                            No plugins has ever been installed.
                         </div>
                         @endif
                     </div>
@@ -178,6 +177,10 @@
                             </div>
                             @endforeach
                         </ul>
+                        @else
+                        <div class="alert flash-message alert-warning alert-dismissable">
+                            No modules installed. So sad :(
+                        </div>
                         @endif
                     </div>
                 </div>
@@ -206,7 +209,7 @@
                     Preloader.create($container, 'centered', false,true);
                 },
                 afterSend: function(res) {
-                    Alerts.show(res.message || '{{ trans('admin.settings.message.settings_updated') }}', 
+                    Alerts.show(res.message || '{{ trans('admin.settings.message.settings_updated') }}',
                         $('#settings-page'), 'info', 'insertBefore', res.success===true);
                 },
                 onError: function(err) {
@@ -243,7 +246,7 @@
         // get role
         var role = $(this).attr('role') || '';
         var action = role.match(/\buninstall|install\b/);
-        var uninstalling;        
+        var uninstalling;
         var fn;
 
         if (action) {
@@ -271,7 +274,7 @@
                 })();
             }
         }
-        
+
         if (!uninstalling) fn = loadComponent(target_uris[type], data);
         fn.then(function(status) {
             var target = ['#',type,data[type]].join('');
