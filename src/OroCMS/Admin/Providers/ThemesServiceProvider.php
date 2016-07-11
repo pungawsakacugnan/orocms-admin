@@ -5,6 +5,7 @@ use Blade;
 use OroCMS\Admin\Facades\Theme;
 use OroCMS\Admin\Services\ThemeFileViewFinder;
 use OroCMS\Admin\Repositories\ThemeRepository;
+use OroCMS\Admin\Facades\Settings as AdminSettings;
 use Illuminate\Foundation\AliasLoader;
 use Illuminate\View\FileViewFinder;
 use Illuminate\Support\ServiceProvider;
@@ -24,10 +25,11 @@ class ThemesServiceProvider extends ServiceProvider
     public function boot()
     {
         // set default theme
-        $name = $this->app['config']->get('admin.themes.default_theme');
-        if ($theme = Theme::find($name)) {
-            view()->share('default_theme', $theme->getName());
-        }
+        $base_path = config('admin.themes.path', base_path('resources/views/themes'));
+        $theme_path = AdminSettings::settings('site_theme') ?: config('admin.themes.default_theme');
+        $this->loadViewsFrom([
+            $base_path .'/'. $theme_path
+        ], 'theme');
     }
 
     /**

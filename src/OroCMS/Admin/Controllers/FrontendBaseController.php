@@ -32,16 +32,19 @@ class FrontendBaseController extends Controller
      */
     public function view($view, $data = [])
     {
-        $view = view($this->getViewPrefix() .'::' . $view, $data);
+        if ($prefix = $this->getViewPrefix()) {
+            $prefix .= '::';
+        }
 
         // override frontend theme if set
         if ($theme = Theme::find($this->getTheme())) {
-            view()->share('default_theme', $theme->getName());
-
             view()->prependNamespace('theme', [
                 $theme->getPath()
             ]);
         }
+
+        // set view
+        $view = view($prefix . $view, $data);
 
         return $view;
     }

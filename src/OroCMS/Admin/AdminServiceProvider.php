@@ -87,11 +87,6 @@ class AdminServiceProvider extends ServiceProvider
             realpath($package_path) . '/views/admin/themes/' . config('admin.themes.cp.default_theme')
         ], 'admin');
 
-        $this->loadViewsFrom([
-            base_path('resources/views/themes/') . config('admin.themes.default_theme'),
-            realpath($package_path) . '/views/themes/' . config('admin.themes.default_theme')
-        ], 'theme');
-
         $this->app['view']->addLocation($viewPath . 'themes/' . config('admin.themes.cp.default_theme'));
         $this->app['view']->addLocation( realpath($package_path) . '/views/admin/themes/' . config('admin.themes.cp.default_theme') );
     }

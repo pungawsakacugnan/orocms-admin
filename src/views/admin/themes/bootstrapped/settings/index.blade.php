@@ -33,6 +33,11 @@
         </div>
     </div>
 
+    {!! Form::open([
+        'class' => 'form-default',
+        'method' => 'PUT',
+        'route' => 'admin.settings.update'
+    ]) !!}
     <div class="col-lg-12">
         <div class="module tabs">
             <ul class="nav nav-tabs" role="tablist">
@@ -44,32 +49,26 @@
             <div class="tab-content">
                 <!-- General Settings //-->
                 <div role="tabpanel" class="tab-pane active" id="general">
-                    {!! Form::open([
-                        'class' => 'form-default',
-                        'method' => 'PUT',
-                        'route' => 'admin.settings.update'
-                    ]) !!}
-                        <div class="section">
-                            {{--
-                            // Get all themes
-                            --}}
-                            @define $themes = Theme::all();
+                    <div class="section">
+                        {{--
+                        // Get all themes
+                        --}}
+                        @define $themes = Theme::all();
 
-                            @if($themes)
-                            <div class="form-group">
-                                {!! Form::label('site_theme', 'Site Theme') !!}
-                                {!! Form::select('settings[site_theme]', $themes, $settings->site_theme, ['id' => 'site_theme', 'class' => 'form-control']) !!}
-                                {!! $errors->first('site_theme', '<ul class="text-danger"><li>:message</li></ul>') !!}
-                            </div>
-                            @endif
-
-                            <br />
-                            {!! Form::submit( trans('admin.settings.form.button.save'), [
-                                'class' => 'btn btn-lg btn-success form-button',
-                                'role' => 'form-button'
-                            ]) !!}
+                        @if($themes)
+                        <div class="form-group">
+                            {!! Form::label('site_theme', 'Site Theme') !!}
+                            {!! Form::select('settings[site_theme]', $themes, $settings->site_theme, ['id' => 'site_theme', 'class' => 'form-control']) !!}
+                            {!! $errors->first('site_theme', '<ul class="text-danger"><li>:message</li></ul>') !!}
                         </div>
-                    {!! Form::close() !!}
+                        @endif
+
+                        <br />
+                        {!! Form::submit( trans('admin.settings.form.button.save'), [
+                            'class' => 'btn btn-lg btn-success form-button',
+                            'role' => 'form-button'
+                        ]) !!}
+                    </div>
                 </div>
 
                 <!-- Plugins //-->
@@ -187,6 +186,7 @@
             </div>
         </div>
     </div>
+    {!! Form::close() !!}
 </div>
 @stop
 
