@@ -2,6 +2,7 @@
 namespace OroCMS\Admin\Controllers;
 
 use OroCMS\Admin\Facades\Theme;
+use OroCMS\Admin\Facades\Settings as AdminSettings;
 use Illuminate\Routing\Controller;
 
 class FrontendBaseController extends Controller
@@ -19,7 +20,7 @@ class FrontendBaseController extends Controller
     /**
      * @var string
      */
-    protected $theme;
+    private $theme;
 
     /**
      * Render view.
@@ -61,7 +62,7 @@ class FrontendBaseController extends Controller
     }
 
     /**
-     * Get route prefix
+     * Get route prefix.
      *
      * @return string
      */
@@ -71,7 +72,7 @@ class FrontendBaseController extends Controller
     }
 
     /**
-     * Get view prefix
+     * Get view prefix.
      *
      * @return string
      */
@@ -83,10 +84,24 @@ class FrontendBaseController extends Controller
     /**
      * Get theme
      *
-     * @return string
+     * @return string.
      */
     public function getTheme()
     {
-        return is_null($this->theme) ? config('admin.themes.default_theme') : $this->theme;
+        $settings_theme = AdminSettings::settings('site_theme') ?: config('admin.themes.default_theme');
+
+        return is_null($this->theme) ? $settings_theme : $this->theme;
+    }
+
+    /**
+     * Set current theme.
+     *
+     * @return string
+     */
+    public function setTheme($theme)
+    {
+        $this->theme = $theme;
+
+        return $this;
     }
 }

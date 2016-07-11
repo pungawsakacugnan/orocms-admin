@@ -3,9 +3,28 @@ namespace OroCMS\Admin\Controllers;
 
 use Illuminate\Http\Request;
 use OroCMS\Admin\Facades\Module;
+use OroCMS\Admin\Repositories\ModuleRepository;
 
 class ModulesController extends BaseController
 {
+    /**
+     * @var OroCMS\Admin\Repositories\ModuleRepository
+     */ 
+    protected $repository;
+
+    /**
+     * @param OroCMS\Admin\Repositories\ModuleRepository $repository
+     */
+    function __construct(ModuleRepository $repository) 
+    {
+        $this->repository = $repository;
+    }
+
+    /**
+     * Display a listing of the resource.
+     *
+     * @return Response
+     */
     public function index()
     {
         $modules = Module::all();
@@ -13,8 +32,22 @@ class ModulesController extends BaseController
         return $this->view('modules.index', compact('modules'));
     }
 
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $module_id
+     *
+     * @return Response
+     */
     public function update(Request $request, $module_id=null)
     {
+        // get redirect url
+        $redirect = $this->redirect('modules.index');
+        if ($redirect_url = $request->get('redirect')) {
+            $redirect = redirect($redirect_url);
+        }
+
         try {
             // pick from request
             if ($request->has('module')) {
@@ -22,22 +55,27 @@ class ModulesController extends BaseController
             }
 
             // get module
-            $module = Module::findOrFail($module_id);
-            $disabled = $module->isStatus(0);
+            $module = $this->repository->findOrFail($module_id);
 
-            // toggle
-            $disabled ? $module->enable() : $module->disable();
+            // has action?
+            if ($action = $request->get('action')) {
+                if (preg_match('/\binstall|uninstall\b/', $action)) {
+                    $module->$action();
+                }
+            }
+            else {
+                $module->toggle();
+            }
 
             if ($request->ajax()) {
                 return response()->json([
                     'success' => true, 
                     'id' => $module->getName(),
-                    'status' => $disabled
+                    'status' => $module->enabled
                 ]);
             }
 
-            return $this->redirect('modules.index')
-                ->withFlashMessage( trans('admin.module.message.' .($disabled?'enable':'disable'). '.success', [
+            return $redirect->withFlashMessage( trans('admin.module.message.' .($disabled?'enable':'disable'). '.success', [
                     'module' => $module->getTitle()
                 ]))
                 ->withFlashType('info');
@@ -50,8 +88,7 @@ class ModulesController extends BaseController
                 ]);
             }
 
-            return $this->redirect('modules.index')
-                ->withFlashMessage($e->getMessage())->withFlashType('danger');
+            return $redirect->withFlashMessage($e->getMessage())->withFlashType('danger');
         }
     }
 }

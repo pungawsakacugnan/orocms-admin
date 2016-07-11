@@ -1,6 +1,8 @@
 <?php
 namespace OroCMS\Admin;
 
+use Artisan;
+use OroCMS\Admin\Entities\Module as ModuleEntity;
 use Illuminate\Foundation\AliasLoader;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\ServiceProvider;
@@ -112,16 +114,6 @@ class Module extends ServiceProvider
     public function getAlias()
     {
         return $this->get('alias');
-    }
-
-    /**
-     * Get priority.
-     *
-     * @return string
-     */
-    public function getPriority()
-    {
-        return $this->get('priority');
     }
 
     /**
@@ -261,67 +253,44 @@ class Module extends ServiceProvider
     }
 
     /**
-     * Determine whether the given status same with the current module status.
+     * Get module entity
      *
-     * @param $status
-     *
-     * @return bool
+     * @return mixed
      */
-    public function isStatus($status)
+    public function getEntity()
     {
-        return $this->get('active', 0) == $status;
+        try {
+            $model = new ModuleEntity;
+            if (is_null($model->connection)) {
+                // use raw
+                $name = $this->json()->get('name');
+                $entity = $this->app['db']->table('modules')->where('name', $name)->first();
+            }
+            else {
+                $entity = $model->where('name', $this->json()->get('name'))->first();
+            }
+            
+            return $entity;
+        }
+        catch(\Exception $e) {}
     }
 
-    /**
-     * Determine whether the current module activated.
-     *
-     * @return bool
-     */
-    public function enabled()
-    {
-        return $this->active();
-    }
-
-    /**
-     * Alternate for "enabled" method.
-     *
-     * @return bool
-     */
-    public function active()
-    {
-        return $this->isStatus(1);
-    }
-
-    /**
-     * Determine whether the current module not activated.
-     *
-     * @return bool
-     */
-    public function notActive()
-    {
-        return !$this->active();
-    }
-
-    /**
-     * Alias for "notActive" method.
-     *
-     * @return bool
-     */
-    public function disabled()
-    {
-        return !$this->enabled();
-    }
 
     /**
      * Set active state for current module.
      *
-     * @param $active
+     * @param boolean $enable
      *
-     * @return bool
+     * @return void
      */
-    public function setActive($active)
+    public function setEnabled($enable)
     {
-        return $this->json()->set('active', $active)->save();
+        if ($entity = $this->getEntity()) {
+            $this->app['db']->table('modules')->where('name', $entity->name)
+                ->update([
+                    'published' => $enable
+                ]);
+        }
     }
 
     /**
@@ -331,10 +300,7 @@ class Module extends ServiceProvider
      */
     public function disable()
     {
-        $this->app['events']->fire('module.disabling', [$this]);
-
-        $this->setActive(0);
-
+        $this->setEnabled(0);
         $this->app['events']->fire('module.disabled', [$this]);
     }
 
@@ -343,11 +309,73 @@ class Module extends ServiceProvider
      */
     public function enable()
     {
-        $this->app['events']->fire('module.enabling', [$this]);
-
-        $this->setActive(1);
-
+        $this->setEnabled(1);
         $this->app['events']->fire('module.enabled', [$this]);
+    }
+
+    /**
+     * Enable the current plugin.
+     *
+     * @return void
+     */
+    public function toggle()
+    {
+        $this->enabled ? $this->disable() : $this->enable();
+    }
+
+    /**
+     * Check if module is installed.
+     *
+     * @return boolean
+     */
+    public function installed()
+    {
+        return $this->getEntity();
+    }
+
+    /**
+     * Install module.
+     *
+     * @return void
+     */
+    public function install()
+    {
+        $entity = $this->getEntity();
+
+        if (is_null($entity)) {
+            $entity = ModuleEntity::create([
+                'name' => $this->get('name')
+            ]);
+
+            // run migration
+            $this->runMigration();
+
+            $this->app['events']->fire('module.install', [$this]);
+        }
+    }
+
+    /**
+     * Remove module record.
+     *
+     * @return bool
+     */
+    public function uninstall()
+    {
+        if ($entity = $this->installed()) {
+            $model = new ModuleEntity();
+
+            $model->where('id', $entity->id)
+                ->delete();
+
+            // run migration
+            $this->runMigration('rollback');
+
+            $this->app['events']->fire('module.uninstall', [$this]);
+
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -373,6 +401,22 @@ class Module extends ServiceProvider
     }
 
     /**
+     * Run a migration job.
+     *
+     * @param string $action
+     *
+     * @return boolean
+     */
+    private function runMigration($action = null)
+    {
+        // run migration
+        $action = 'admin:' . ($action ?: 'migrate');
+        Artisan::call($action, [
+            '--module' => $this->get('name')
+        ]);
+    }
+
+    /**
      * Handle call to __get method.
      *
      * @param $key
@@ -381,6 +425,14 @@ class Module extends ServiceProvider
      */
     public function __get($key)
     {
+        if ($key == 'enabled') {
+            if ($entity = $this->getEntity()) {
+                return $entity->published;
+            }
+
+            return false;
+        }
+
         return $this->get($key);
     }
     

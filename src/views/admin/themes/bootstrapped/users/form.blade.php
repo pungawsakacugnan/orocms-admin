@@ -59,7 +59,7 @@
             </div>
             @if(!isset($model) or auth()->user()->id <> $model->id)
             <div class="form-group">
-                {!! Form::label('published', trans('articles::articles.admin.form.label.published')) !!}
+                {!! Form::label('published', trans('admin.user.form.label.published')) !!}
                 <div class="switch mini">
                     <input name="published" id="published" {{ (@$model->published?'checked':'') }} {{ $disabled }} value="1" type="checkbox" />
                     <label for="published"></label>

@@ -187,8 +187,8 @@ button {
 }
 
 .no-padding {
-    padding-left: 0;
-    padding-right: 0;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
 }
 
 .module {
@@ -675,6 +675,13 @@ a {
 form {
     label {
         color: #888;
+
+        &[required="1"],
+        &[required="true"] {
+            &:after {
+                content: "*";
+            }
+        }
     }
 
     // default form
@@ -953,10 +960,10 @@ form {
             margin: 0 10px 0 0;
         }
         &-top {
-            margin: 10px 0 0;
+            margin: 10px 0 0 0;
         }
         &-right {
-            margin: 0 0 10px;
+            margin: 0 0 10px 0;
         }
     }
     &-20x {
@@ -1293,6 +1300,10 @@ form {
         &:disabled {
             &+label {
                 cursor: default;
+
+                &:before {
+                    background-color: #ccc;
+                }
 
                 &:after {
                     box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);

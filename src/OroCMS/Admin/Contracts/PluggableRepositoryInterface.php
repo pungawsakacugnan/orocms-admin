@@ -1,33 +1,26 @@
 <?php
 namespace OroCMS\Admin\Contracts;
 
-interface ModuleRepositoryInterface
+interface PluggableRepositoryInterface
 {
     /**
-     * Get all modules.
+     * Get all plugins.
      *
      * @return mixed
      */
     public function all();
 
     /**
-     * Get cached modules.
-     *
-     * @return array
-     */
-    public function getCached();
-
-    /**
-     * Scan & get all available modules.
+     * Scan & get all available plugins.
      *
      * @return array
      */
     public function scan();
 
     /**
-     * Get modules as modules collection instance.
+     * Get plugins as plugins collection instance.
      *
-     * @return \Pingpong\Modules\Collection
+     * @return \Pingpong\plugins\Collection
      */
     public function toCollection();
 
@@ -39,35 +32,35 @@ interface ModuleRepositoryInterface
     public function getScanPaths();
 
     /**
-     * Get list of enabled modules.
+     * Get list of enabled plugins.
      *
      * @return mixed
      */
     public function enabled();
 
     /**
-     * Get list of disabled modules.
+     * Get list of disabled plugins.
      *
      * @return mixed
      */
     public function disabled();
 
     /**
-     * Get count from all modules.
+     * Get count from all plugins.
      *
      * @return int
      */
     public function count();
 
     /**
-     * Get all ordered modules.
+     * Get all plugins in order of priority.
      *
      * @return mixed
      */
-    public function getOrdered();
+    public function getPrioritized();
 
     /**
-     * Get modules by the given status.
+     * Get plugins by the given status.
      *
      * @param int $status
      *
@@ -76,7 +69,7 @@ interface ModuleRepositoryInterface
     public function getByStatus($status);
 
     /**
-     * Find a specific module.
+     * Find a specific plugin.
      *
      * @param $name
      *
@@ -85,7 +78,7 @@ interface ModuleRepositoryInterface
     public function find($name);
 
     /**
-     * Find a specific module. If there return that, otherwise throw exception.
+     * Find a specific plugin. If there return that, otherwise throw exception.
      *
      * @param $name
      *

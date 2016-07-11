@@ -7,10 +7,11 @@ use Illuminate\Support\Str;
 use OroCMS\Admin\Json;
 use OroCMS\Admin\Collection;
 use OroCMS\Admin\Module;
-use OroCMS\Admin\Contracts\ModuleRepositoryInterface;
+use OroCMS\Admin\Entities\Module as ModuleEntity;
+use OroCMS\Admin\Contracts\PluggableRepositoryInterface;
 use OroCMS\Admin\Exceptions\ModuleNotFoundException;
 
-class ModuleRepository implements ModuleRepositoryInterface, Countable
+class ModuleRepository implements PluggableRepositoryInterface, Countable
 {
     /**
      * Application instance.
@@ -45,40 +46,15 @@ class ModuleRepository implements ModuleRepositoryInterface, Countable
         $this->path = $path;
     }
 
-    /**
-     * Add other module location.
-     *
-     * @param string $path
-     *
-     * @return $this
-     */
-    public function addLocation($path)
-    {
-        $this->paths[] = $path;
-
-        return $this;
-    }
 
     /**
-     * Alternative method for "addPath".
-     *
-     * @param string $path
-     *
-     * @return $this
-     */
-    public function addPath($path)
+    * Return module model.
+    *
+    * @return \OroCMS\Admin\Entities\Module
+    */
+    public function getModel()
     {
-        return $this->addLocation($path);
-    }
-
-    /**
-     * Get all additional paths.
-     *
-     * @return array
-     */
-    public function getPaths()
-    {
-        return $this->paths;
+        return new ModuleEntity;
     }
 
     /**
@@ -136,43 +112,25 @@ class ModuleRepository implements ModuleRepositoryInterface, Countable
      */
     public function all()
     {
-        if (!$this->config('cache.enabled')) {
-            return $this->scan();
-        }
+        static $modules;
 
-        return $this->formatCached($this->getCached());
-    }
+        if (is_null($modules)) {
+            if (!$this->config('cache.enabled')) {
+                $modules = $this->scan();
+            }
+            else {
+                $modules = $this->formatCached($this->getCached());
+            }
 
-    /**
-     * Format the cached data as array of modules.
-     *
-     * @param array $cached
-     *
-     * @return array
-     */
-    protected function formatCached($cached)
-    {
-        $modules = [];
-
-        foreach ($cached as $name=>$module) {
-            $path = $this->config('paths.modules').'/'.$name;
-
-            $modules[] = new Module($this->app, $name, $path);
+            // map publishing with current entity
+            foreach ($modules as $module) {
+                if ($entity = $module->getEntity()) {
+                    $module->setEnabled($entity->published);
+                }
+            }
         }
 
         return $modules;
-    }
-
-    /**
-     * Get cached modules.
-     *
-     * @return array
-     */
-    public function getCached()
-    {
-        return $this->app['cache']->remember($this->config('cache.key'), $this->config('cache.lifetime'), function () {
-            return $this->toCollection()->toArray();
-        });
     }
 
     /**
@@ -197,7 +155,7 @@ class ModuleRepository implements ModuleRepositoryInterface, Countable
         $modules = [];
 
         foreach ($this->all() as $name=>$module) {
-            if ($module->isStatus($status)) {
+            if ($module->enabled and $status) {
                 $modules[$name] = $module;
             }
         }
@@ -246,6 +204,15 @@ class ModuleRepository implements ModuleRepositoryInterface, Countable
     {
         return count($this->all());
     }
+
+    /**
+     * Get all modules in order of priority.
+     *
+     * @param string $direction
+     *
+     * @return array
+     */
+    public function getPrioritized($direction = 'asc') {}
 
     /**
      * Get all ordered modules.
@@ -340,7 +307,7 @@ class ModuleRepository implements ModuleRepositoryInterface, Countable
      */
     public function findOrFail($name)
     {
-        if (!is_null($module = $this->find($name))) {
+        if ($module = $this->find($name)) {
             return $module;
         }
 
@@ -399,54 +366,6 @@ class ModuleRepository implements ModuleRepositoryInterface, Countable
     }
 
     /**
-     * Get storage path for module used.
-     *
-     * @return string
-     */
-    public function getUsedStoragePath()
-    {
-        if (!$this->app['files']->exists($path = storage_path('app/modules'))) {
-            $this->app['files']->makeDirectory($path, 0777, true);
-        }
-
-        return $path.'/modules.used';
-    }
-
-    /**
-     * Set module used for cli session.
-     *
-     * @param $name
-     *
-     * @throws ModuleNotFoundException
-     */
-    public function setUsed($name)
-    {
-        $module = $this->findOrFail($name);
-
-        $this->app['files']->put($this->getUsedStoragePath(), $module);
-    }
-
-    /**
-     * Get module used for cli session.
-     *
-     * @return string
-     */
-    public function getUsedNow()
-    {
-        return $this->findOrFail($this->app['files']->get($this->getUsedStoragePath()));
-    }
-
-    /**
-     * Get used now.
-     *
-     * @return string
-     */
-    public function getUsed()
-    {
-        return $this->getUsedNow();
-    }
-
-    /**
      * Get laravel filesystem instance.
      *
      * @return \Illuminate\Filesystem\Filesystem
@@ -483,30 +402,6 @@ class ModuleRepository implements ModuleRepositoryInterface, Countable
         $url = $this->app['url']->asset($baseUrl."/{$name}/".$url);
 
         return str_replace(['http://', 'https://'], '//', $url);
-    }
-
-    /**
-     * Determine whether the given module is activated.
-     *
-     * @param string $name
-     *
-     * @return bool
-     */
-    public function active($name)
-    {
-        return $this->findOrFail($name)->active();
-    }
-
-    /**
-     * Determine whether the given module is not activated.
-     *
-     * @param string $name
-     *
-     * @return bool
-     */
-    public function notActive($name)
-    {
-        return !$this->active($name);
     }
 
     /**

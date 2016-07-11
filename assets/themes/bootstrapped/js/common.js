@@ -15,7 +15,8 @@ String.prototype.str_repeat = function() {
 
 var Railed, // railed
     Preloader, // preloader
-    Notify; // notification
+    Notify, // notification
+    Alerts; // [role="alert"]
 +function ($) {
     'use strict';
 
@@ -149,6 +150,44 @@ var Railed, // railed
             setTimeout(function(fn) {
                 typeof fn=='function' && fn.call(null, this);
                 _preloader.fadeOut('slow', function() {
+                    $(this).remove();
+                });
+            }, 5e2, arguments[0]);
+        }
+    };
+
+    /**
+     * Alerts
+     */
+    Alerts = Alerts || {
+        show: function() {
+            var auto_close = arguments[4] || false,
+                alert_id = new Date().getTime(),
+                tmpl = '<div id="alert_{id}" class="alert {status_type} alert-dismissible" role="alert"><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true"><i class="fa fa-ban"></i></span></button><span>{content}</span></div>';
+
+            // params
+            var status_type = 'alert-' + (arguments[2] || 'info'),
+                container = arguments[1] || 'body',
+                pos = arguments[3] || 'prependTo';
+            // add
+            $(tmpl.replace(/{status_type}/, status_type)
+                    .replace(/{id}/, alert_id)
+                    .replace(/{content}/, arguments[0]||'No message provided!'))
+                [pos]($(container));
+
+            // auto close alert
+            auto_close===true && setTimeout(function(id) {
+                $('.alert#alert_' + id).fadeOut('slow', function() {
+                    $(this).remove();
+                })
+            },5e3, alert_id);
+        },
+        clear: function() {
+            var _alerts = $('[role="alert"]');
+            if (arguments[0]===true) return _alerts.remove();
+            setTimeout(function(fn) {
+                typeof fn=='function' && fn.call(null, this);
+                _alerts.fadeOut('slow', function() {
                     $(this).remove();
                 });
             }, 5e2, arguments[0]);

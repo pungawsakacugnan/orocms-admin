@@ -67,7 +67,7 @@ return [
     'user.list.header.date_added' => 'Date Added',
     'user.list.header.published' => 'Status',
     'user.list.header.id' => 'ID',
-    'user.list.button.create' => 'New Account',
+    'user.list.button.create' => 'Add New Account...',
     'user.list.button.delete_all' => 'Remove selected accounts',
     'user.list.button.purge' => 'Delete Forever',
     'user.list.button.restore' => 'Restore...',
@@ -96,6 +96,17 @@ return [
     'user.message.delete.marked' => 'User item marked as deleted.',
     'user.message.delete.success' => 'User details permanently deleted.',
     'user.message.restored' => 'User details successfully restored',
+
+    /**
+     * Settings
+     */
+    'settings.header' => 'Settings',
+    'settings.breadcrumb' => 'Manage Settings',
+
+    'settings.form.button.save' => 'Save Settings...',
+    'settings.form.button.install' => 'Install',
+    'settings.form.button.uninstall' => 'Un-install',
+    'settings.message.settings_updated' => 'Settings successfully updated.',
 
     /**
      * Logs

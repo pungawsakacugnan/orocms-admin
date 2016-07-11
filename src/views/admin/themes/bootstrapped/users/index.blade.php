@@ -17,12 +17,23 @@
 @endpush
 
 @section('content')
-    <div id="content-wrapper" class="list-container module section">
-        <div id="toolbar">
-            <a role="button" data-toggle="tooltip" data-placement="bottom" title="{{ trans('admin.user.list.button.create') }}" href="{!! route('admin.users.create') !!}" class="btn margin-5x-right btn-lg btn-primary">
-                <i class="glyphicon-fw-2x glyphicon glyphicon-plus"></i>
+<div id="content-wrapper">
+    <div class="header-group">
+        <div>
+            <h1 class="page-header">
+                {{ trans('admin.user.header') }}
+            </h1>
+        </div>
+        <div class="pull-right">
+            <a href="{{ route('admin.users.create') }}" class="btn btn-success">
+                <i class="glyphicon glyphicon-plus"></i>
+                {{ trans('admin.user.list.button.create') }}
             </a>
+        </div>
+    </div>
 
+    <div class="module section">
+        <div id="toolbar">
             <div class="btn-group">
                 <div id="list:type"
                     data-id="visibility"
@@ -116,6 +127,7 @@
             </thead>
         </table>
     </div>
+</div>
 @stop
 
 @push('jquery-scripts')
@@ -145,16 +157,13 @@
                         Preloader.create('.list-container', 'centered', false,true);
                     })
                     .on('railed.onComplete', function(e, result) {
-                        console.log('done');
-
                         $('.alert').remove();
                         Preloader.clear(function() {
                             // check response
                             var success = result.success || result.status,
                                 message = result.statusText || (result.message || 'No message returned.');
 
-                            BT.notify(message, BT.options.notification.target, success===true?'info':'warning', 'insertBefore', success===true);
-
+                            Alerts && Alerts.show(message, BT.options.notification.target, success===true?'info':'warning', 'insertBefore', success===true);
                             BT.target.bootstrapTable('refresh');
                         });
                     });

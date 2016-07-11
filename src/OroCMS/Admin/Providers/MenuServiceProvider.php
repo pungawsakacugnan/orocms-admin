@@ -19,11 +19,6 @@ class MenuServiceProvider extends ServiceProvider
             $menu->add(trans('admin.menu.dashboard'), 'admin')
                 ->icon('dashboard');
 
-            // plugins
-            $menu->add(trans('admin.menu.plugins'), route('admin.plugins.index'))
-                ->icon('plug')
-                ->active('admin/plugins/*');
-
             // users
             $account_menu = $menu->add(trans('admin.menu.accounts'), route('admin.users.index'))
                 ->data('role', ['admin'])
@@ -31,7 +26,7 @@ class MenuServiceProvider extends ServiceProvider
                 ->active('admin/users/*');
 
             // settings
-            $menu->add(trans('admin.menu.settings'), 'javascript:;')
+            $menu->add(trans('admin.menu.settings'), route('admin.settings.index'))
                 ->data('glyphicon', 'glyphicon glyphicon-wrench')
                 ->active('admin/settings/*');
 

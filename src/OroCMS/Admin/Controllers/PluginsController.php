@@ -3,10 +3,28 @@ namespace OroCMS\Admin\Controllers;
 
 use Illuminate\Http\Request;
 use OroCMS\Admin\Facades\Plugin;
-use OroCMS\Admin\Entities\Plugin as PluginEntity;
+use OroCMS\Admin\Repositories\PluginRepository;
 
 class PluginsController extends BaseController
 {
+    /**
+     * @var OroCMS\Admin\Repositories\PluginRepository
+     */ 
+    protected $repository;
+
+    /**
+     * @param OroCMS\Admin\Repositories\PluginRepository $repository
+     */
+    function __construct(PluginRepository $repository) 
+    {
+        $this->repository = $repository;
+    }
+
+    /**
+     * Display a listing of the resource.
+     *
+     * @return Response
+     */
     public function index()
     {
         $plugins = Plugin::all();
@@ -14,8 +32,22 @@ class PluginsController extends BaseController
         return $this->view('plugins.index', compact('plugins'));
     }
 
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $plugin_id
+     *
+     * @return Response
+     */
     public function update(Request $request, $plugin_id=null)
     {
+        // get redirect url
+        $redirect = $this->redirect('modules.index');
+        if ($redirect_url = $request->get('redirect')) {
+            $redirect = redirect($redirect_url);
+        }
+
         try {
             // pick from request
             if ($request->has('plugin')) {
@@ -23,8 +55,17 @@ class PluginsController extends BaseController
             }
 
             // get plugin
-            $plugin = Plugin::findOrFail($plugin_id);
-            $plugin->toggle();
+            $plugin = $this->repository->findOrFail($plugin_id);
+
+            // has action?
+            if ($action = $request->get('action')) {
+                if (preg_match('/\binstall|uninstall\b/', $action)) {
+                    $plugin->$action();
+                }
+            }
+            else {
+                $plugin->toggle();
+            }
 
             if ($request->ajax()) {
                 return response()->json([
@@ -34,8 +75,7 @@ class PluginsController extends BaseController
                 ]);
             }
 
-            return $this->redirect('plugins.index')
-                ->withFlashMessage( trans('admin.plugin.message.' .($plugin->enabled?'enable':'disable'). '.success', [
+            return $redirect->withFlashMessage( trans('admin.plugin.message.' .($plugin->enabled?'enable':'disable'). '.success', [
                     'plugin' => $plugin->getTitle()
                 ]))
                 ->withFlashType('info');
@@ -48,8 +88,7 @@ class PluginsController extends BaseController
                 ]);
             }
 
-            return $this->redirect('plugins.index')
-                ->withFlashMessage($e->getMessage())->withFlashType('danger');
+            return $redirect->withFlashMessage($e->getMessage())->withFlashType('danger');
         }
     }
 }

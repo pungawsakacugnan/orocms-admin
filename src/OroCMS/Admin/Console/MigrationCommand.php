@@ -12,14 +12,14 @@ class MigrationCommand extends Command
      *
      * @var string
      */
-    protected $name = 'admin:migration';
+    protected $name = 'admin:migrate';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Copy the migration file to the application.';
+    protected $description = 'Run a module migration.';
 
     /**
      * @var OroCMS\Admin\Repositories\ModuleRepository
@@ -39,16 +39,6 @@ class MigrationCommand extends Command
         if ($module_name) {
             return $this->migrateModule($module_name);
         }
-
-        // do main migration
-        $path = realpath(__DIR__.'/../../../../src/migrations/');
-
-        $this->laravel['files']->copyDirectory(
-            $path,
-            $this->laravel['path.database'].'/migrations/'
-        );
-
-        $this->info('Migrations published successfully.');
     }
 
     /**
@@ -66,12 +56,14 @@ class MigrationCommand extends Command
         if ($this->option('seed')) {
             $this->call('module:seed', ['module' => $name]);
         }
+
+        $this->info(ucwords($name) . ' module migration successful.');
     }
 
     /**
      * Get migration path for specific module.
      *
-     * @param  \Pingpong\Modules\Module $module
+     * @param  \OroCMS\Admin\Module $module
      * @return string
      */
     protected function getPath($module)

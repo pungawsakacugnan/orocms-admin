@@ -8,10 +8,10 @@ use OroCMS\Admin\Json;
 use OroCMS\Admin\Collection;
 use OroCMS\Admin\Plugin;
 use OroCMS\Admin\Entities\Plugin as PluginEntity;
-use OroCMS\Admin\Contracts\PluginRepositoryInterface;
+use OroCMS\Admin\Contracts\PluggableRepositoryInterface;
 use OroCMS\Admin\Exceptions\PluginNotFoundException;
 
-class PluginRepository implements PluginRepositoryInterface, Countable
+class PluginRepository implements PluggableRepositoryInterface, Countable
 {
     /**
      * Application instance.
@@ -26,13 +26,6 @@ class PluginRepository implements PluginRepositoryInterface, Countable
      * @var string|null
      */
     protected $path;
-
-    /**
-     * The plugin model.
-     *
-     * @var OroCMS\Admin\Entities\Plugin
-     */
-    protected $model;
 
     /**
      * The scanned paths.
@@ -53,45 +46,14 @@ class PluginRepository implements PluginRepositoryInterface, Countable
         $this->path = $path;
     }
 
+    /**
+    * Return plugin model.
+    *
+    * @return \OroCMS\Admin\Entities\Plugin
+    */
     public function getModel()
     {
         return new PluginEntity;
-    }
-
-    /**
-     * Add other plugin location.
-     *
-     * @param string $path
-     *
-     * @return $this
-     */
-    public function addLocation($path)
-    {
-        $this->paths[] = $path;
-
-        return $this;
-    }
-
-    /**
-     * Alternative method for "addPath".
-     *
-     * @param string $path
-     *
-     * @return $this
-     */
-    public function addPath($path)
-    {
-        return $this->addLocation($path);
-    }
-
-    /**
-     * Get all additional paths.
-     *
-     * @return array
-     */
-    public function getPaths()
-    {
-        return $this->paths;
     }
 
     /**
@@ -159,47 +121,15 @@ class PluginRepository implements PluginRepositoryInterface, Countable
                 $plugins = $this->formatCached($this->getCached());
             }
 
-            // map publishing with current repository list
+            // map publishing with current entity
             foreach ($plugins as $plugin) {
-                if ($repository = $plugin->getRepository()) {
-                    $plugin->setEnabled($repository->published);
+                if ($entity = $plugin->getEntity()) {
+                    $plugin->setEnabled($entity->published);
                 }
             }
         }
 
         return $plugins;
-    }
-
-    /**
-     * Format the cached data as array of plugins.
-     *
-     * @param array $cached
-     *
-     * @return array
-     */
-    protected function formatCached($cached)
-    {
-        $plugins = [];
-
-        foreach ($cached as $name=>$plugin) {
-            $path = $this->config('paths.plugins').'/'.$name;
-
-            $plugins[] = new Plugin($this->app, $name, $path);
-        }
-
-        return $plugins;
-    }
-
-    /**
-     * Get cached plugins.
-     *
-     * @return array
-     */
-    public function getCached()
-    {
-        return $this->app['cache']->remember($this->config('cache.key'), $this->config('cache.lifetime'), function () {
-            return $this->toCollection()->toArray();
-        });
     }
 
     /**
@@ -367,7 +297,7 @@ class PluginRepository implements PluginRepositoryInterface, Countable
      */
     public function findOrFail($name)
     {
-        if (!is_null($plugin = $this->find($name))) {
+        if ($plugin = $this->find($name)) {
             return $plugin;
         }
 
@@ -426,64 +356,6 @@ class PluginRepository implements PluginRepositoryInterface, Countable
     }
 
     /**
-     * Get storage path for plugin used.
-     *
-     * @return string
-     */
-    public function getUsedStoragePath()
-    {
-        if (!$this->app['files']->exists($path = storage_path('app/plugins'))) {
-            $this->app['files']->makeDirectory($path, 0777, true);
-        }
-
-        return $path.'/plugins.used';
-    }
-
-    /**
-     * Set plugin used for cli session.
-     *
-     * @param $name
-     *
-     * @throws PluginNotFoundException
-     */
-    public function setUsed($name)
-    {
-        $plugin = $this->findOrFail($name);
-
-        $this->app['files']->put($this->getUsedStoragePath(), $plugin);
-    }
-
-    /**
-     * Get plugin used for cli session.
-     *
-     * @return string
-     */
-    public function getUsedNow()
-    {
-        return $this->findOrFail($this->app['files']->get($this->getUsedStoragePath()));
-    }
-
-    /**
-     * Get used now.
-     *
-     * @return string
-     */
-    public function getUsed()
-    {
-        return $this->getUsedNow();
-    }
-
-    /**
-     * Get laravel filesystem instance.
-     *
-     * @return \Illuminate\Filesystem\Filesystem
-     */
-    public function getFiles()
-    {
-        return $this->app['files'];
-    }
-
-    /**
      * Get plugin assets path.
      *
      * @return string
@@ -510,30 +382,6 @@ class PluginRepository implements PluginRepositoryInterface, Countable
         $url = $this->app['url']->asset($baseUrl."/{$name}/".$url);
 
         return str_replace(['http://', 'https://'], '//', $url);
-    }
-
-    /**
-     * Determine whether the given plugin is activated.
-     *
-     * @param string $name
-     *
-     * @return bool
-     */
-    public function active($name)
-    {
-        return $this->findOrFail($name)->active();
-    }
-
-    /**
-     * Determine whether the given plugin is not activated.
-     *
-     * @param string $name
-     *
-     * @return bool
-     */
-    public function notActive($name)
-    {
-        return !$this->active($name);
     }
 
     /**

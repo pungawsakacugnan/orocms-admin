@@ -18,6 +18,11 @@ class UsersController extends BaseController
     protected $users;
 
     /**
+     * @var OroCMS\Admin\Repositories\UserRepository
+     */ 
+    protected $repository;
+
+    /**
      * @param OroCMS\Admin\Repositories\UserRepository $repository
      */
     function __construct(UserRepository $repository) 

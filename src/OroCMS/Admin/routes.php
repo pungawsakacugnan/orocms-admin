@@ -33,6 +33,10 @@ Route::group(['prefix' => config('admin.prefix', 'admin'), 'middleware' => ['web
         Route::get('/plugins', ['as' => 'admin.plugins.index', 'uses' => 'PluginsController@index']);
         Route::put('/plugins', ['as' => 'admin.plugins.update', 'uses' => 'PluginsController@update']);
 
+        // settings
+        Route::get('/settings', ['as' => 'admin.settings.index', 'uses' => 'SettingsController@index']);
+        Route::put('/settings', ['as' => 'admin.settings.update', 'uses' => 'SettingsController@update']);
+
         // profile details
         Route::get('/profile', ['as'=>'admin.profile', 'uses'=>'AuthController@show_profile']);
         Route::put('/profile', ['as'=>'admin.profile', 'uses'=>'AuthController@update_profile']);

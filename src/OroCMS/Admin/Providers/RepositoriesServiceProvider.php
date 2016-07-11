@@ -1,6 +1,7 @@
 <?php
 namespace OroCMS\Admin\Providers;
 
+use OroCMS\Admin\Repositories\SettingsRepository;
 use Illuminate\Support\ServiceProvider;
 
 class RepositoriesServiceProvider extends ServiceProvider
@@ -13,8 +14,7 @@ class RepositoriesServiceProvider extends ServiceProvider
     protected $defer = false;
 
     protected $entities = [
-        'User',
-        'Role'
+        'Settings',
     ];
 
     /**
@@ -29,15 +29,12 @@ class RepositoriesServiceProvider extends ServiceProvider
 
     protected function bindUserRepository()
     {
-        $this->app->bind(
-            'OroCMS\Admin\Repositories\Users\UserRepository'
-        );
     }
 
-    protected function bindRoleRepository()
+    protected function bindSettingsRepository()
     {
-        $this->app->bind(
-            'OroCMS\Admin\Repositories\Roles\RoleRepository'
-        );
+        $this->app->bind('settings', function($app) {
+            return new SettingsRepository;
+        });
     }
 }

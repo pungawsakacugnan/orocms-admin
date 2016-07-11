@@ -32,13 +32,6 @@ class Plugin extends ServiceProvider
     protected $path;
 
     /**
-     * Plugin publish status.
-     *
-     * @var
-     */
-    protected $enabled;
-
-    /**
      * The constructor.
      *
      * @param Application $app
@@ -242,40 +235,40 @@ class Plugin extends ServiceProvider
     }
 
     /**
-     * Get plugin repository
-     *
-     * @param $repository mixed
+     * Get plugin entity
      *
      * @return mixed
      */
-    public function getRepository()
+    public function getEntity()
     {
-        $model = new PluginEntity;
-        if (is_null($model->connection)) {
-            // use raw
-            $name = $this->json()->get('name');
-
-            $repository = $this->app['db']->table('plugins')->where('name', $name)->first();
+        try {
+            $model = new PluginEntity;
+            if (is_null($model->connection)) {
+                // use raw
+                $name = $this->json()->get('name');
+                $entity = $this->app['db']->table('plugins')->where('name', $name)->first();
+            }
+            else {
+                $entity = $model->where('name', $this->json()->get('name'))->first();
+            }
+            
+            return $entity;
         }
-        else {
-            $repository = $model->where('name', $this->json()->get('name'))->first();
-        }
-
-        return $repository;
+        catch(\Exception $e) {}
     }
 
     /**
-     * Get plugin hooks
+     * Get plugin hooks.
      *
-     * @param $repository mixed
+     * @param mixed $enabled 
      *
      * @return mixed
      */
     public function getHooks($enabled = true)
     {
-        if ($repository = $this->getRepository()) {
+        if ($entity = $this->getEntity()) {
             $query = $this->app['db']->table('plugin_hooks')
-                ->where('plugin_id', $repository->id);
+                ->where('plugin_id', $entity->id);
 
             if ($enabled) {
                 $query = $query->where('published', 1);
@@ -290,22 +283,20 @@ class Plugin extends ServiceProvider
     /**
      * Set active state for current plugin.
      *
-     * @param $enable
+     * @param boolean $enable
      *
      * @return void
      */
     public function setEnabled($enable)
     {
-        $this->enabled = $enable;
-
-        if ($repository = $this->getRepository()) {
-            $this->app['db']->table('plugins')->where('name', $repository->name)
+        if ($entity = $this->getEntity()) {
+            $this->app['db']->table('plugins')->where('name', $entity->name)
                 ->update([
                     'published' => $enable
                 ]);
 
             $this->app['db']->table('plugin_hooks')
-                ->where('plugin_id', $repository->id)
+                ->where('plugin_id', $entity->id)
                 ->update([
                     'published' => $enable
                 ]);
@@ -319,9 +310,8 @@ class Plugin extends ServiceProvider
      */
     public function disable()
     {
-        $this->app['events']->fire('plugin.disabling', [$this]);
-
         $this->setEnabled(0);
+        $this->app['events']->fire('plugin.disabled', [$this]);
     }
 
     /**
@@ -334,19 +324,13 @@ class Plugin extends ServiceProvider
         $this->setEnabled(1);
 
         // enable first-time
-        $repository = $this->getRepository();
-        if (is_null($repository)) {
-            $entity = PluginEntity::create([
-                'name' => $this->get('name'),
-                'published' => true
-            ]);
-
+        if ($entity = $this->getEntity()) {
             foreach ($this->get('hooks') as $hook) {
                 if (!(isset($hook['event']) or isset($hook['class']))) {
                     continue;
                 }
 
-                PluginHook::create([
+                PluginHook::updateOrCreate([
                     'plugin_id' => $entity->id,
                     'event' => $hook['event'],
                     'class' => $hook['class'],
@@ -366,6 +350,55 @@ class Plugin extends ServiceProvider
     public function toggle()
     {
         $this->enabled ? $this->disable() : $this->enable();
+    }
+
+    /**
+     * Check if plugin is installed.
+     *
+     * @return boolean
+     */
+    public function installed()
+    {
+        return $this->getEntity();
+    }
+
+    /**
+     * Install plugin.
+     *
+     * @return void
+     */
+    public function install()
+    {
+        $entity = $this->getEntity();
+
+        if (is_null($entity)) {
+            $entity = PluginEntity::create([
+                'name' => $this->get('name')
+            ]);
+
+            $this->app['events']->fire('plugin.install', [$this]);
+        }
+    }
+
+    /**
+     * Remove plugin record.
+     *
+     * @return bool
+     */
+    public function uninstall()
+    {
+        if ($entity = $this->installed()) {
+            $model = new PluginEntity();
+
+            $model->where('id', $entity->id)
+                ->delete();
+
+            $this->app['events']->fire('plugin.uninstall', [$this]);
+
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -400,7 +433,11 @@ class Plugin extends ServiceProvider
     public function __get($key)
     {
         if ($key == 'enabled') {
-            return $this->enabled;
+            if ($entity = $this->getEntity()) {
+                return $entity->published;
+            }
+
+            return false;
         }
 
         return $this->get($key);
