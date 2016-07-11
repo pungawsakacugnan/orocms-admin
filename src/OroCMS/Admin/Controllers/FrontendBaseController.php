@@ -32,9 +32,7 @@ class FrontendBaseController extends Controller
      */
     public function view($view, $data = [])
     {
-        if ($prefix = $this->getViewPrefix()) {
-            $prefix .= '::';
-        }
+        $prefix = $this->getViewPrefix() ?: 'theme';
 
         // override frontend theme if set
         if ($theme = Theme::find($this->getTheme())) {
@@ -44,7 +42,7 @@ class FrontendBaseController extends Controller
         }
 
         // set view
-        $view = view($prefix . $view, $data);
+        $view = view($prefix .'::'. $view, $data);
 
         return $view;
     }
