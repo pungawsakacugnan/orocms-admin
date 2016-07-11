@@ -19,7 +19,7 @@ class MigrationCommand extends Command
      *
      * @var string
      */
-    protected $description = 'Run a module migration.';
+    protected $description = 'Run a module migration or copy migration files to the application.';
 
     /**
      * @var OroCMS\Admin\Repositories\ModuleRepository
@@ -39,6 +39,16 @@ class MigrationCommand extends Command
         if ($module_name) {
             return $this->migrateModule($module_name);
         }
+
+        // do migration copy
+        $path = realpath(__DIR__.'/../../../../src/migrations/');
+
+        $this->laravel['files']->copyDirectory(
+            $path,
+            $this->laravel['path.database'].'/migrations/'
+        );
+
+        $this->info('Migrations published successfully.');
     }
 
     /**
@@ -69,7 +79,7 @@ class MigrationCommand extends Command
     protected function getPath($module)
     {
         $path = $module->getExtraPath(config('admin.modules.migration.path'));
-        
+
         return str_replace(base_path(), '', $path);
     }
 

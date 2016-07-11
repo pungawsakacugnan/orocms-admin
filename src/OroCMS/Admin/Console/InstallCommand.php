@@ -50,7 +50,7 @@ class InstallCommand extends Command
     protected function installPackage()
     {
         // do data migration
-        $this->call('admin:migration');
+        $this->call('admin:migrate');
         $this->call('migrate');
 
         // seeding
