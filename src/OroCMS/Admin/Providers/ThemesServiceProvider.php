@@ -6,6 +6,7 @@ use OroCMS\Admin\Facades\Theme;
 use OroCMS\Admin\Services\ThemeFileViewFinder;
 use OroCMS\Admin\Repositories\ThemeRepository;
 use OroCMS\Admin\Facades\Settings as AdminSettings;
+use Illuminate\Http\Request;
 use Illuminate\Foundation\AliasLoader;
 use Illuminate\View\FileViewFinder;
 use Illuminate\Support\ServiceProvider;
@@ -22,7 +23,7 @@ class ThemesServiceProvider extends ServiceProvider
     /**
      * Booting the package.
      */
-    public function boot()
+    public function boot(Request $request)
     {
         // set default theme
         $base_path = config('admin.themes.path', base_path('resources/views/themes'));
@@ -32,7 +33,10 @@ class ThemesServiceProvider extends ServiceProvider
         ], 'theme');
 
         // prioritized our theme path
-        $this->app['view']->prependLocation($base_path .'/'. $theme_path);
+        // if not on cp
+        if ($request->segment(1) != 'admin') {
+            $this->app['view']->prependLocation($base_path .'/'. $theme_path);
+        }
     }
 
     /**
