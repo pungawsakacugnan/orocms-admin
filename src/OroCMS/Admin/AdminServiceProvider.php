@@ -99,6 +99,8 @@ class AdminServiceProvider extends ServiceProvider
         $this->registerProviders();
         $this->registerFacades();
         $this->registerRoutes();
+        $this->registerViewFinder();
+        $this->registerFactory();
     }
 
     /**
@@ -126,6 +128,40 @@ class AdminServiceProvider extends ServiceProvider
     {
         $this->app->booted(function () {
             $this->app['events']->fire('admin::routes');
+        });
+    }
+
+    /**
+     * Register our extended view finder class to include custom methods.
+     *
+     * @return void
+     */
+    public function registerViewFinder()
+    {
+        $this->app->bind('view.finder', function ($app) {
+            $paths = $app['config']['view.paths'];
+
+            return new FileViewFinder($app['files'], $paths);
+        });
+    }
+
+    /**
+     * Register our extended Factory class to include custom methods.
+     *
+     * @return void
+     */
+    public function registerFactory()
+    {
+        $this->app->singleton('view', function ($app) {
+            $resolver = $app['view.engine.resolver'];
+            $finder = $app['view.finder'];
+
+            $env = new Factory($resolver, $finder, $app['events']);
+
+            $env->setContainer($app);
+            $env->share('app', $app);
+
+            return $env;
         });
     }
 

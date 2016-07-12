@@ -30,6 +30,9 @@ class ThemesServiceProvider extends ServiceProvider
         $this->loadViewsFrom([
             $base_path .'/'. $theme_path
         ], 'theme');
+
+        // prioritized our theme path
+        $this->app['view']->prependLocation($base_path .'/'. $theme_path);
     }
 
     /**
