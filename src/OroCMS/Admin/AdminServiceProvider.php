@@ -1,6 +1,8 @@
 <?php
 namespace OroCMS\Admin;
 
+use OroCMS\Admin\Services\View\Factory;
+use OroCMS\Admin\Services\View\FileViewFinder;
 use Illuminate\Foundation\AliasLoader;
 use Illuminate\Support\ServiceProvider;
 
