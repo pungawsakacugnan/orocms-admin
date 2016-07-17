@@ -17,8 +17,11 @@ class SettingsRepository
      */
     function __construct()
     {
-        $this->settings = $this->getModel()
-            ->all();
+        try {
+            $this->settings = $this->getModel()
+                ->all();
+        }
+        catch(\Exception $e) {}
     }
 
     /**
