@@ -21,7 +21,7 @@
         padding: 10px; }
     </style>
 
-    @yield('header')
+    @stack('header')
 </head>
 <body>
     <div class="wrapper">
