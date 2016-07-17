@@ -22,6 +22,14 @@ Then in your ```composer.json```, add:
     "require": {
         "rudenyl/orocms-admin": "*"
     },
+    ...
+    "autoload": {
+        "psr-4": {
+            "Modules\\": "modules/",
+            "Plugins\\": "plugins/"
+        }
+    },
+    ...
     "minimum-stability": "dev"
 }
 ```
