@@ -7,7 +7,7 @@
     "description": "OroCMS bower components",
     "license": "MIT",
     "dependencies": {
-        "jquery": "*",
+        "jquery": "2.2.4",
         "fontawesome": "*",
         "bootstrap": "*",
         "bootbox": "*",
