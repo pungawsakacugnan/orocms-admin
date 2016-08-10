@@ -19,9 +19,6 @@ To install through composer, set the repository entry as below:
 Then in your ```composer.json```, add:
 ```
 {
-    "require": {
-        "rudenyl/orocms-admin": "*"
-    },
     ...
     "autoload": {
         "psr-4": {
@@ -32,6 +29,11 @@ Then in your ```composer.json```, add:
     ...
     "minimum-stability": "dev"
 }
+```
+
+We're ready to install. Add dependency with:
+```
+$ composer require rudenyl/orocms-admin
 ```
 
 
