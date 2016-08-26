@@ -15,8 +15,8 @@ class CreateModulesTable extends Migration
         Schema::create('modules', function($table) {
             $table->increments('id')->unsigned();
             $table->string('name', 50);
-            $table->string('version', 10);
-            $table->boolean('published');
+            $table->string('version', 10)->nullable();
+            $table->boolean('published')->nullable();
         });
     }
 

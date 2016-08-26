@@ -15,10 +15,10 @@ class CreatePluginHooksTable extends Migration
         Schema::create('plugin_hooks', function($table) {
             $table->increments('id')->unsigned;
             $table->integer('plugin_id')->unsigned;
-            $table->string('event', 80);
-            $table->string('class', 255);
-            $table->text('params');
-            $table->boolean('published');
+            $table->string('event', 80)->nullable();
+            $table->string('class', 255)->nullable();
+            $table->text('params')->nullable();
+            $table->boolean('published')->nullable();
         });
     }
 

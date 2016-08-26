@@ -15,9 +15,9 @@ class CreatePluginsTable extends Migration
         Schema::create('plugins', function($table) {
             $table->increments('id')->unsigned;
             $table->string('name', 50);
-            $table->integer('priority');
-            $table->string('version', 10);
-            $table->boolean('published');
+            $table->integer('priority')->nullable();
+            $table->string('version', 10)->nullable();
+            $table->boolean('published')->nullable();
         });
     }
 

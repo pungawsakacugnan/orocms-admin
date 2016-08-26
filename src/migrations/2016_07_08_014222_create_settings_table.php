@@ -14,7 +14,7 @@ class CreateSettingsTable extends Migration
     {
         Schema::create('settings', function($table) {
             $table->string('key', 255)->unique()->index();
-            $table->text('value');
+            $table->text('value')->nullable();
         });
     }
 
