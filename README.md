@@ -11,6 +11,10 @@ To install through composer, set the repository entry as below:
         {
             "type": "vcs",
             "url": "https://github.com/rudenyl/orocms-admin.git"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/rudenyl/menus.git"
         }
     ]
 }
