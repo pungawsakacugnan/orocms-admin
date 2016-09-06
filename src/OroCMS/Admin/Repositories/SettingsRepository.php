@@ -66,6 +66,10 @@ class SettingsRepository
         }
 
         foreach ($data as $key => $value) {
+            if (is_array($value)) {
+                $value = serialize($value);
+            }
+
             !empty($key) && $this->getModel()->updateOrCreate(['key' => $key], [
                     'key' => $key,
                     'value' => $value
@@ -84,7 +88,14 @@ class SettingsRepository
                 ->first();
 
             if ($record) {
-                return $record->value;
+                $value = $record->value;
+
+                // check for serialized data
+                if (substr($value, 0,2) == 'a:') {
+                    $value = unserialize($value);
+                }
+
+                return $value;
             }
         }
     }
