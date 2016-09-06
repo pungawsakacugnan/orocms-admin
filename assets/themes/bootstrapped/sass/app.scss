@@ -844,6 +844,28 @@ form {
     }
 }
 
+.section-input-group {
+    display: table;
+    width: 100%;
+    position: relative;
+    border-collapse: separate;
+    padding: 5px 0;
+
+    .group-left,
+    .group-right {
+        display: table-cell;
+        position: relative;
+        width: 100%;
+    }
+
+    .group-left {
+        width: 1%;
+        white-space: nowrap;
+        vertical-align: middle;
+    }
+}
+
+
 /**
  * Preloaders
  */
@@ -2170,6 +2192,13 @@ form {
                     }
                 }
             }
+        }
+    }
+
+    .section-input-group {
+        .group-left,
+        .group-right {
+            display: block;
         }
     }
 }
