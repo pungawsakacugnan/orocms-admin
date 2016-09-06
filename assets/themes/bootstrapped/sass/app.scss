@@ -889,6 +889,12 @@ form {
         }
     }
 
+    &.top {
+        position: absolute;
+        top: calc(25% - 8px);
+        left: calc(50% - 33px);
+    }
+
     &.centered {
         position: absolute;
         top: calc(50% - 8px);
@@ -1060,6 +1066,21 @@ form {
     &>label {
         font-weight: 400;
     }
+
+    .instructions {
+        display: block;
+        padding: 5px 0;
+        font-size: 12px;
+        word-wrap: break-word;
+
+        &.clipped {
+            margin-top: -10px;
+        }
+    }
+}
+
+.wrapped {
+    word-wrap: break-word !important;
 }
 
 .dropdown-menu {
