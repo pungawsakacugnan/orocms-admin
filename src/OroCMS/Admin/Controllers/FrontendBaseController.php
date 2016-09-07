@@ -59,7 +59,12 @@ class FrontendBaseController extends Controller
      */
     public function redirect($route, $parameters = [], $status = 302, $headers = [])
     {
-        return redirect(route($this->getRoutePrefix() .'.'. $route, $parameters, $status, $headers));
+        $prefix = $this->getRoutePrefix();
+        if (!empty($prefix)) {
+            $route = $prefix .'.'. $route;
+        }
+
+        return redirect(route($route, $parameters, $status, $headers));
     }
 
     /**
