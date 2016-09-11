@@ -9,28 +9,33 @@ if (! function_exists('theme')) {
      */
     function theme($type, $asset = '')
     {
-    	$options = explode('.', $type);
+        $options = explode('.', $type);
 
-    	$type = array_shift($options);
-    	$arg = array_shift($options);
+        $type = array_shift($options);
+        $arg = array_shift($options);
 
-		$theme = config('admin.themes.default_theme');
-		if (strtolower($type) == 'admin') {
-			$theme = config('admin.themes.cp.default_theme');
-		}
+        $theme = config('admin.themes.default_theme');
+        if (strtolower($type) == 'admin') {
+            $theme = config('admin.themes.cp.default_theme');
+        }
 
     	$paths = [
-			$arg ?: base_path('resources/views'),
-			'themes',
-			$theme
+            $arg ?: null,
+            'themes',
+            $theme
     	];
 
-    	// set type
-		!empty($type) and array_splice($paths, 1, 0, $type);
+        // set type
+        !empty($type) and array_splice($paths, 1, 0, $type);
 
-		// add asset
-		!empty($asset) and $paths[] = $asset;
+        // add asset
+        !empty($asset) and $paths[] = $asset;
 
-		return implode('/', $paths);
+        // remove empty
+        $paths = array_filter($paths, function($path) {
+            return !empty($path);
+        });
+
+        return implode('/', $paths);
     }
 }
