@@ -1025,6 +1025,17 @@ var App, // app helper
             form.submit();
         });
 
+        // switchy
+        $('[data-toggle="switch"]').on('click', function() {
+            var $el = $(this);
+            var data = $el.data() || {};
+            var $target = $('[name="%s"]'.replace(/%s/, data.target||''));
+
+            if ($target.length) {
+                $target.val($el.is(':checked') ? 1 : 0);
+            }
+        });
+
         /**
          * Sidebar listener
          */
