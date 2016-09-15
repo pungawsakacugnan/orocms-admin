@@ -43,4 +43,12 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
             $this->attributes['password'] = \Hash::make($value);
         }
     }
+
+    /**
+     * @param string $token 
+     */
+    public function sendPasswordResetNotification($token)
+    {
+        // todo
+    }
 }
