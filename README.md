@@ -4,7 +4,7 @@ Inspired from PingPong admin for L5 (https://github.com/pingpong-labs/admin) but
 
 
 ## Installation
-To install through composer, set the repository entry as below:
+Create or edit existing your ```composer.json```, and add the following:
 ```
 {
     "repositories": [
@@ -17,12 +17,6 @@ To install through composer, set the repository entry as below:
             "url": "https://github.com/rudenyl/menus.git"
         }
     ]
-}
-```
-
-Then in your ```composer.json```, add:
-```
-{
     ...
     "autoload": {
         "psr-4": {
@@ -35,7 +29,7 @@ Then in your ```composer.json```, add:
 }
 ```
 
-We're ready to install. Add dependency with:
+We're then ready to install, add the package wit composer.
 ```
 $ composer require rudenyl/orocms-admin
 ```
@@ -80,9 +74,12 @@ Alternatively, if you want to publish everything and run through migration and d
 $ php artisan admin:install
 ```
 
+I'd recommend using the latter ;)
+
+
 ## Assets
 The admin package comes with existing gulpfile.js, bower and node module config files.
-To ensure you will be able to compile the assets needed to run the admin package, you need to install the required node modules and bower components.
+To ensure you will be able to compile the assets needed to run the admin package, you need to install the required node modules and bower components. You can skip the bower and node module install if you these folders (i sometimes symlinked these from somewhere) already.
 
 Install bower components with:
 ```
@@ -117,6 +114,9 @@ All set!
   Call to undefined method insert
 ```  
 When you get the above errors, it could be that the module fork for ```caffeinated/menus``` in your vendor folder wasn't properly fetched (could be a bad composer repository reference). As a temporary workaround, remove the current /caffeinated/menus folder and drop in and ```git clone https://github.com/rudenyl/menus``` instead.
+
+This issue will show if you're adding the package to your ```composer.json``` and then issuing ```$ composer update```
+
 
 ### License
 
