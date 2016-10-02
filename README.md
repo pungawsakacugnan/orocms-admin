@@ -16,15 +16,7 @@ Create or edit existing your ```composer.json```, and add the following:
             "type": "vcs",
             "url": "https://github.com/rudenyl/menus.git"
         }
-    ]
-    ...
-    "autoload": {
-        "psr-4": {
-            "Modules\\": "modules/",
-            "Plugins\\": "plugins/"
-        }
-    },
-    ...
+    ],
     "minimum-stability": "dev"
 }
 ```
