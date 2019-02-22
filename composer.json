@@ -15,7 +15,7 @@
     ],
     "require": {
         "php": ">=5.5.9",
-        "laravel/framework": "5.2.*",
+        "laravel/framework": "5.7.*",
         "caffeinated/menus": "dev-master",
         "league/fractal": ">=0.12.0",
         "hashids/hashids": "1.0.0"
